@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Folk Fables</string>
+
+
+    <string name="Play">&gt;</string>
+    <string name="Pause">||</string>
+    <string name="Forward">&gt;&gt;</string>
+    <string name="Next">&gt;|</string>
+    <string name="Previous">|&lt;</string>
+    <string name="Reverse">&lt;&lt;</string>
+    <string name="Downloading_message">Downloading audio...</string>
+    <string name="title_activity_download">DownloadActivity</string>
+    <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
+</resources>
