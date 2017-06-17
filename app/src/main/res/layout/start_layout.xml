@@ -2,6 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/light_purple"
     android:orientation="vertical">
 
     <SeekBar
@@ -14,11 +15,12 @@
 
     <LinearLayout
         android:id="@+id/buttonsLayout"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/seekBar"
         android:layout_marginTop="16dp"
-        android:background="#ffffff"
+        android:background="@color/white"
+        android:baselineAligned="false"
         android:orientation="horizontal">
 
         <LinearLayout
@@ -30,35 +32,31 @@
                 android:id="@+id/buttonPrevious"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
                 android:text="@string/Previous" />
-
-            <Button
-                android:id="@+id/buttonReverse"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/Reverse" />
 
         </LinearLayout>
 
-        <RelativeLayout
+        <LinearLayout
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/buttonPlay"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/Play" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
-            <Button
-                android:id="@+id/buttonPause"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/Pause" />
-        </RelativeLayout>
+                <Button
+                    android:id="@+id/buttonPlay"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/Play" />
+
+                <Button
+                    android:id="@+id/buttonPause"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/Pause" />
+            </RelativeLayout>
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -67,34 +65,27 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/buttonForward"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/Forward" />
-
-            <Button
                 android:id="@+id/buttonNext"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/Next" />
         </LinearLayout>
     </LinearLayout>
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
+        android:layout_below="@+id/buttonsLayout"
         android:orientation="vertical">
 
-        <com.notify.listviewfacebook.FeedImageView
-            android:id="@+id/playFeedImage"
+        <TextView
+            android:id="@+id/audioPlaying"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorPrimary"
-            android:scaleType="fitXY"
-            android:visibility="visible" />
-    </LinearLayout>
+            android:gravity="center"
+            android:paddingTop="8dp"
+            android:textColor="@color/black"
+            android:textSize="16sp" />
+    </RelativeLayout>
 
 </RelativeLayout>

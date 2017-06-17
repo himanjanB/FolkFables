@@ -1,10 +1,12 @@
 package com.notify.listviewfacebook.data;
 
+import java.io.Serializable;
+
 /**
  * Created by Himanjan on 04-06-2017.
  */
 
-public class FeedItem {
+public class FeedItem implements Serializable {
     private int id;
     private String name, status, image, profilePic, timeStamp, url, audioURL;
 

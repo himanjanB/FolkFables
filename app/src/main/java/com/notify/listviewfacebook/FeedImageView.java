@@ -3,7 +3,6 @@ package com.notify.listviewfacebook;
 import android.content.Context;
 import android.text.TextUtils;
 import android.util.AttributeSet;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 
@@ -16,39 +15,24 @@ import com.android.volley.toolbox.ImageLoader;
 
 public class FeedImageView extends android.support.v7.widget.AppCompatImageView {
 
-    public interface ResponseObserver {
-        public void onError();
-
-        public void onSuccess();
-    }
-
     private ResponseObserver mObserver;
-
-    public void setResponseObserver(ResponseObserver observer) {
-        mObserver = observer;
-    }
-
     /**
      * The URL of the network image to load
      */
     private String mUrl;
-
     /**
      * Resource ID of the image to be used as a placeholder until the network
      * image is loaded.
      */
     private int mDefaultImageId;
-
     /**
      * Resource ID of the image to be used if the network response fails.
      */
     private int mErrorImageId;
-
     /**
      * Local copy of the ImageLoader.
      */
     private ImageLoader mImageLoader;
-
     /**
      * Current ImageContainer. (either in-flight or finished)
      */
@@ -65,6 +49,10 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
     public FeedImageView(Context context, AttributeSet attrs,
                          int defStyle) {
         super(context, attrs, defStyle);
+    }
+
+    public void setResponseObserver(ResponseObserver observer) {
+        mObserver = observer;
     }
 
     public void setImageUrl(String url, ImageLoader imageLoader) {
@@ -93,8 +81,7 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
     /**
      * Loads the image for the view if it isn't already loaded.
      *
-     * @param isInLayoutPass
-     *            True if this was invoked from a layout pass, false otherwise.
+     * @param isInLayoutPass True if this was invoked from a layout pass, false otherwise.
      */
     private void loadImageIfNecessary(final boolean isInLayoutPass) {
         final int width = getWidth();
@@ -103,16 +90,15 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
         boolean isFullyWrapContent = getLayoutParams() != null
                 && getLayoutParams().height == LayoutParams.WRAP_CONTENT
                 && getLayoutParams().width == LayoutParams.WRAP_CONTENT;
-        // if the view's bounds aren't known yet, and this is not a
+        // If the view's bounds aren't known yet, and this is not a
         // wrap-content/wrap-content
         // view, hold off on loading the image.
         if (width == 0 && height == 0 && !isFullyWrapContent) {
             return;
         }
 
-        // if the URL to be loaded in this view is empty, cancel any old
-        // requests and clear the
-        // currently loaded image.
+        // If the URL to be loaded in this view is empty, cancel any old
+        // requests and clear the currently loaded image.
         if (TextUtils.isEmpty(mUrl)) {
             if (mImageContainer != null) {
                 mImageContainer.cancelRequest();
@@ -172,7 +158,7 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
                             return;
                         }
 
-                        int bWidth = 0, bHeight = 0;
+                        int bWidth, bHeight;
                         if (response.getBitmap() != null) {
 
                             setImageBitmap(response.getBitmap());
@@ -232,7 +218,7 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
     }
 
     /*
-     * Adjusting imageview height
+     * Adjusting image view height
      * */
     private void adjustImageAspect(int bWidth, int bHeight) {
         LinearLayout.LayoutParams params = (LayoutParams) getLayoutParams();
@@ -240,11 +226,17 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
         if (bWidth == 0 || bHeight == 0)
             return;
 
-        int swidth = getWidth();
-        int new_height = 0;
-        new_height = swidth * bHeight / bWidth;
-        params.width = swidth;
+        int sWidth = getWidth();
+        int new_height;
+        new_height = sWidth * bHeight / bWidth;
+        params.width = sWidth;
         params.height = new_height;
         setLayoutParams(params);
+    }
+
+    public interface ResponseObserver {
+        void onError();
+
+        void onSuccess();
     }
 }

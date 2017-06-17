@@ -28,14 +28,13 @@ import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private ListView storyList;
     private FeedListAdapter storyListAdapter;
-    private List<FeedItem> feedItemList;
+    private ArrayList<FeedItem> feedItemList;
     private String URL_FEED = AppConfig.JSON_URL;
 
     @Override
@@ -57,7 +56,8 @@ public class MainActivity extends AppCompatActivity {
                                     int position, long id) {
                 FeedItem item = (FeedItem) storyList.getItemAtPosition(position);
                 Log.i(TAG, "The audio URL is " + item.getAudioURL());
-                startDownloadingMP3(item.getAudioURL());
+                Log.i(TAG, "Audio detail is " + item.getName());
+                startDownloadingMP3(item.getAudioURL(), item.getName(), feedItemList, position);
             }
         });
 
@@ -99,13 +99,15 @@ public class MainActivity extends AppCompatActivity {
             // Adding request to volley request queue
             AppController.getInstance().addToRequestQueue(jsonReq);
         }
-
     }
 
-    private void startDownloadingMP3(String audioURL) {
+    private void startDownloadingMP3(String audioURL, String audioDetail, ArrayList<FeedItem> storyList, int position) {
         Log.i(TAG, "Starting download.. " + audioURL);
         Intent intent = new Intent(this, StartActivity.class);
         intent.putExtra("AUDIO_URL", audioURL);
+        intent.putExtra("AUDIO_DETAILS", audioDetail);
+        intent.putExtra("AUDIO_LIST", storyList);
+        intent.putExtra("POSITION", position);
         startActivity(intent);
     }
 
