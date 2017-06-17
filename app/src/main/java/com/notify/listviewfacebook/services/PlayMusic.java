@@ -42,6 +42,16 @@ public class PlayMusic extends Service {
             e.printStackTrace();
         }
         mediaPlayer.start();
+
+        //This is a callback method that will be called once the audio run is completed.
+        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mp) {
+                Log.i(TAG, "On Completion called");
+                mediaPlayer.release();
+                mediaPlayer = null;
+            }
+        });
         return START_STICKY;
     }
 

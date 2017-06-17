@@ -10,7 +10,6 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-import com.android.volley.Cache;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -26,7 +25,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
@@ -62,7 +60,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // We first check for cached request
-        Cache cache = AppController.getInstance().getRequestQueue().getCache();
+        /*Cache cache = AppController.getInstance().getRequestQueue().getCache();
         Cache.Entry entry = cache.get(URL_FEED);
         if (entry != null) {
             // Fetch the data from cache
@@ -70,7 +68,7 @@ public class MainActivity extends AppCompatActivity {
                 String data = new String(entry.data, "UTF-8");
                 try {
                     parseJSONFeed(new JSONObject(data));
-                    Log.i(TAG, "JSON Parsing complete");
+                    Log.i(TAG, "Cached JSON Parsing complete");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -78,27 +76,28 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
 
-        } else {
-            // Making fresh volley request and getting JSON
-            JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET,
-                    URL_FEED, null, new Response.Listener<JSONObject>() {
+        } else {*/
 
-                @Override
-                public void onResponse(JSONObject response) {
-                    VolleyLog.d(TAG, "Response: " + response.toString());
-                    parseJSONFeed(response);
-                }
-            }, new Response.ErrorListener() {
+        // Making fresh volley request and getting JSON
+        JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET,
+                URL_FEED, null, new Response.Listener<JSONObject>() {
 
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.i(TAG, "Error in parsing JSON " + error.getMessage());
-                }
-            });
+            @Override
+            public void onResponse(JSONObject response) {
+                VolleyLog.d(TAG, "Response: " + response.toString());
+                parseJSONFeed(response);
+                Log.i(TAG, "JSON Parsing complete");
+            }
+        }, new Response.ErrorListener() {
 
-            // Adding request to volley request queue
-            AppController.getInstance().addToRequestQueue(jsonReq);
-        }
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.i(TAG, "Error in parsing JSON " + error.getMessage());
+            }
+        });
+
+        // Adding request to volley request queue
+        AppController.getInstance().addToRequestQueue(jsonReq);
     }
 
     private void startDownloadingMP3(String audioURL, String audioDetail, ArrayList<FeedItem> storyList, int position) {

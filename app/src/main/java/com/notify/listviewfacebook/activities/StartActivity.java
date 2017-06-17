@@ -79,7 +79,7 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             Log.i(TAG, "Moving to the next position");
             position++;
             if (position > AUDIO_LIST_SIZE - 1) {
-                position = AUDIO_LIST_SIZE - 1;
+                position = 0;
             }
             audioDetails.setText(itemList.get(position).getName());
             Intent intent = new Intent(this, PlayMusic.class);
@@ -91,7 +91,7 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             Log.i(TAG, "Moving to the previous position");
             position--;
             if (position < 0) {
-                position = 0;
+                position = AUDIO_LIST_SIZE - 1;
             }
             audioDetails.setText(itemList.get(position).getName());
             Intent intent = new Intent(this, PlayMusic.class);
