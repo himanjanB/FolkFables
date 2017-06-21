@@ -26,10 +26,10 @@ import java.util.List;
  */
 
 public class FeedListAdapter extends BaseAdapter {
+    ImageLoader imageLoader = AppController.getInstance().getImageLoader();
     private Activity activity;
     private LayoutInflater inflater;
     private List<FeedItem> feedItems;
-    ImageLoader imageLoader = AppController.getInstance().getImageLoader();
 
     public FeedListAdapter(Activity activity, List<FeedItem> feedItems) {
         this.activity = activity;
@@ -72,7 +72,7 @@ public class FeedListAdapter extends BaseAdapter {
         NetworkImageView profilePic = (NetworkImageView) convertView
                 .findViewById(R.id.profilePic);
         FeedImageView feedImageView = (FeedImageView) convertView
-                .findViewById(R.id.feedImage1);
+                .findViewById(R.id.feedImage);
 
         FeedItem item = feedItems.get(position);
 
@@ -84,12 +84,12 @@ public class FeedListAdapter extends BaseAdapter {
                 System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
         timestamp.setText(timeAgo);
 
-        // Chcek for empty status message
+        // Check for empty status message
         if (!TextUtils.isEmpty(item.getStatus())) {
             statusMsg.setText(item.getStatus());
             statusMsg.setVisibility(View.VISIBLE);
         } else {
-            // status is empty, remove from view
+            // If status is empty, remove from view
             statusMsg.setVisibility(View.GONE);
         }
 
@@ -98,20 +98,20 @@ public class FeedListAdapter extends BaseAdapter {
             url.setText(Html.fromHtml("<a href=\"" + item.getUrl() + "\">"
                     + item.getUrl() + "</a> "));
 
-            // Making url clickable
+            // Making URL clickable
             url.setMovementMethod(LinkMovementMethod.getInstance());
             url.setVisibility(View.VISIBLE);
         } else {
-            // url is null, remove from the view
+            // URL is null, remove from the view
             url.setVisibility(View.GONE);
         }
 
-        // user profile pic
+        // User Profile Pic
         profilePic.setImageUrl(item.getProfilePic(), imageLoader);
 
         // Feed image
-        if (item.getImge() != null) {
-            feedImageView.setImageUrl(item.getImge(), imageLoader);
+        if (item.getImage() != null) {
+            feedImageView.setImageUrl(item.getImage(), imageLoader);
             feedImageView.setVisibility(View.VISIBLE);
             feedImageView
                     .setResponseObserver(new FeedImageView.ResponseObserver() {
@@ -129,5 +129,4 @@ public class FeedListAdapter extends BaseAdapter {
 
         return convertView;
     }
-
 }

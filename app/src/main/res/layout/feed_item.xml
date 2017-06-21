@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/feed_bg"
-    android:orientation="vertical" >
+    android:orientation="vertical">
 
     <LinearLayout
         android:layout_width="fill_parent"
@@ -12,31 +12,33 @@
         android:layout_marginLeft="@dimen/normal_margin"
         android:layout_marginRight="@dimen/normal_margin"
         android:layout_marginTop="@dimen/normal_margin"
-        android:descendantFocusability="blocksDescendants"
         android:background="@drawable/bg_parent_rounded_corner"
+        android:descendantFocusability="blocksDescendants"
         android:orientation="vertical"
         android:paddingBottom="@dimen/normal_margin"
-        android:paddingTop="@dimen/normal_margin" >
+        android:paddingTop="@dimen/normal_margin">
 
         <LinearLayout
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:paddingLeft="@dimen/feed_item_padding_left_right"
-            android:paddingRight="@dimen/feed_item_padding_left_right" >
+            android:paddingRight="@dimen/feed_item_padding_left_right">
 
             <com.android.volley.toolbox.NetworkImageView
                 android:id="@+id/profilePic"
                 android:layout_width="@dimen/feed_item_profile_pic"
                 android:layout_height="@dimen/feed_item_profile_pic"
-                android:scaleType="fitCenter" >
+                android:scaleType="fitCenter">
             </com.android.volley.toolbox.NetworkImageView>
 
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:paddingLeft="@dimen/feed_item_profile_info_padd" >
+                android:paddingLeft="@dimen/feed_item_profile_info_padding"
+                android:paddingRight="@dimen/feed_item_profile_info_padding"
+                android:paddingStart="@dimen/feed_item_profile_info_padding">
 
                 <TextView
                     android:id="@+id/name"
@@ -74,7 +76,7 @@
             android:textColorLink="@color/link" />
 
         <com.notify.listviewfacebook.FeedImageView
-            android:id="@+id/feedImage1"
+            android:id="@+id/feedImage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@color/colorPrimary"

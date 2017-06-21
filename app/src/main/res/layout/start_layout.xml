@@ -113,21 +113,33 @@
 
             <TextView
                 android:id="@+id/currentTimeTextView"
-                android:layout_width="0dp"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:paddingStart="8dp"
-                android:text="0:14" />
+                android:gravity="start"
+                android:maxLines="1"
+                android:paddingLeft="@dimen/normal_margin"
+                android:paddingRight="@dimen/normal_margin"
+                android:paddingStart="@dimen/normal_margin" />
+
+            <TextView
+                android:id="@+id/audioCurrentPlayingTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="3"
+                android:gravity="center"
+                android:maxLines="3" />
 
             <TextView
                 android:id="@+id/fullTimeTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingLeft="8dp"
-                android:paddingRight="8dp"
-                android:text="3:32" />
+                android:layout_weight="1"
+                android:gravity="end"
+                android:maxLines="1"
+                android:paddingLeft="@dimen/normal_margin"
+                android:paddingRight="@dimen/normal_margin"
+                android:paddingStart="@dimen/normal_margin" />
         </LinearLayout>
 
         <SeekBar
@@ -215,8 +227,6 @@
                     android:layout_weight="1"
                     android:clickable="true"
                     android:src="@android:drawable/ic_media_next" />
-
-
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>

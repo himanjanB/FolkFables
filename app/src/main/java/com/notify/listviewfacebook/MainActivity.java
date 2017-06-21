@@ -29,7 +29,14 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
+    // Declare the class member variables
     private static final String TAG = MainActivity.class.getSimpleName();
+
+    private final static String AUDIO_URL = AppConfig.AUDIO_URL;
+    private final static String AUDIO_DETAILS = AppConfig.AUDIO_DETAILS;
+    private final static String AUDIO_LIST = AppConfig.AUDIO_LIST;
+    private final static String POSITION = AppConfig.POSITION;
+
     private ListView storyList;
     private FeedListAdapter storyListAdapter;
     private ArrayList<FeedItem> feedItemList;
@@ -48,7 +55,6 @@ public class MainActivity extends AppCompatActivity {
 
         // Click event for single list row
         storyList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
             @Override
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
@@ -78,10 +84,9 @@ public class MainActivity extends AppCompatActivity {
 
         } else {*/
 
-        // Making fresh volley request and getting JSON
+        // Making fresh volley request and getting the JSON response
         JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET,
                 URL_FEED, null, new Response.Listener<JSONObject>() {
-
             @Override
             public void onResponse(JSONObject response) {
                 VolleyLog.d(TAG, "Response: " + response.toString());
@@ -89,7 +94,6 @@ public class MainActivity extends AppCompatActivity {
                 Log.i(TAG, "JSON Parsing complete");
             }
         }, new Response.ErrorListener() {
-
             @Override
             public void onErrorResponse(VolleyError error) {
                 Log.i(TAG, "Error in parsing JSON " + error.getMessage());
@@ -103,10 +107,10 @@ public class MainActivity extends AppCompatActivity {
     private void startDownloadingMP3(String audioURL, String audioDetail, ArrayList<FeedItem> storyList, int position) {
         Log.i(TAG, "Starting download.. " + audioURL);
         Intent intent = new Intent(this, StartActivity.class);
-        intent.putExtra("AUDIO_URL", audioURL);
-        intent.putExtra("AUDIO_DETAILS", audioDetail);
-        intent.putExtra("AUDIO_LIST", storyList);
-        intent.putExtra("POSITION", position);
+        intent.putExtra(AUDIO_URL, audioURL);
+        intent.putExtra(AUDIO_DETAILS, audioDetail);
+        intent.putExtra(AUDIO_LIST, storyList);
+        intent.putExtra(POSITION, position);
         startActivity(intent);
     }
 
@@ -127,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
                 // Image might be null sometimes
                 String image = feedObj.isNull("image") ? null : feedObj
                         .getString("image");
-                item.setImge(image);
+                item.setImage(image);
                 item.setStatus(feedObj.getString("status"));
                 item.setProfilePic(feedObj.getString("profilePic"));
                 item.setTimeStamp(feedObj.getString("timeStamp"));

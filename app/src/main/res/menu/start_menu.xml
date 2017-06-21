@@ -8,12 +8,12 @@
         android:title="@string/action_settings"
         app:showAsAction="never" />
 
-    <item
+    <!--<item
         android:id="@+id/action_share"
         android:icon="@android:drawable/ic_menu_share"
         android:orderInCategory="1"
         android:title="@string/action_share"
         app:actionViewClass="android.widget.SearchView"
-        app:showAsAction="collapseActionView|ifRoom" />
+        app:showAsAction="collapseActionView|ifRoom" />-->
 
 </menu>

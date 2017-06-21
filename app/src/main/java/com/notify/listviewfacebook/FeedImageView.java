@@ -16,23 +16,28 @@ import com.android.volley.toolbox.ImageLoader;
 public class FeedImageView extends android.support.v7.widget.AppCompatImageView {
 
     private ResponseObserver mObserver;
+
     /**
      * The URL of the network image to load
      */
     private String mUrl;
+
     /**
      * Resource ID of the image to be used as a placeholder until the network
      * image is loaded.
      */
     private int mDefaultImageId;
+
     /**
      * Resource ID of the image to be used if the network response fails.
      */
     private int mErrorImageId;
+
     /**
      * Local copy of the ImageLoader.
      */
     private ImageLoader mImageLoader;
+
     /**
      * Current ImageContainer. (either in-flight or finished)
      */
@@ -90,8 +95,8 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
         boolean isFullyWrapContent = getLayoutParams() != null
                 && getLayoutParams().height == LayoutParams.WRAP_CONTENT
                 && getLayoutParams().width == LayoutParams.WRAP_CONTENT;
-        // If the view's bounds aren't known yet, and this is not a
-        // wrap-content/wrap-content
+
+        // If the view's bounds aren't known yet and this is not a wrap-content/wrap-content
         // view, hold off on loading the image.
         if (width == 0 && height == 0 && !isFullyWrapContent) {
             return;
@@ -108,23 +113,20 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
             return;
         }
 
-        // if there was an old request in this view, check if it needs to be
-        // canceled.
+        // If there was an old request in this view, check if it needs to be cancelled
         if (mImageContainer != null && mImageContainer.getRequestUrl() != null) {
             if (mImageContainer.getRequestUrl().equals(mUrl)) {
-                // if the request is from the same URL, return.
+                // If the request is from the same URL, return.
                 return;
             } else {
-                // if there is a pre-existing request, cancel it if it's
-                // fetching a different URL.
+                // If there is a pre-existing request, cancel it if it's fetching a different URL.
                 mImageContainer.cancelRequest();
                 setDefaultImageOrNull();
             }
         }
 
         // The pre-existing content of this view didn't match the current URL.
-        // Load the new image
-        // from the network.
+        // Load the new image from the network.
         ImageLoader.ImageContainer newContainer = mImageLoader.get(mUrl,
                 new ImageLoader.ImageListener() {
                     @Override
@@ -141,13 +143,8 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
                     @Override
                     public void onResponse(final ImageLoader.ImageContainer response,
                                            boolean isImmediate) {
-                        // If this was an immediate response that was delivered
-                        // inside of a layout
-                        // pass do not set the image immediately as it will
-                        // trigger a requestLayout
-                        // inside of a layout. Instead, defer setting the image
-                        // by posting back to
-                        // the main thread.
+                        // If this was an immediate response that was delivered inside of a layout pass do not set the image immediately as it will
+                        // trigger a requestLayout inside of a layout. Instead, defer setting the image by posting back to the main thread.
                         if (isImmediate && isInLayoutPass) {
                             post(new Runnable() {
                                 @Override
@@ -177,7 +174,7 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
                     }
                 });
 
-        // update the ImageContainer to be the new bitmap container.
+        // Update the ImageContainer to be the new bitmap container.
         mImageContainer = newContainer;
 
     }
@@ -200,12 +197,10 @@ public class FeedImageView extends android.support.v7.widget.AppCompatImageView 
     @Override
     protected void onDetachedFromWindow() {
         if (mImageContainer != null) {
-            // If the view was bound to an image request, cancel it and clear
-            // out the image from the view.
+            // If the view was bound to an image request, cancel it and clear out the image from the view.
             mImageContainer.cancelRequest();
             setImageBitmap(null);
-            // also clear out the container so we can reload the image if
-            // necessary.
+            // Also clear out the container so we can reload the image if necessary.
             mImageContainer = null;
         }
         super.onDetachedFromWindow();
