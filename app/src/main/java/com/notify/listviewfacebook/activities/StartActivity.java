@@ -26,6 +26,7 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
 
     private static int position;
     private static int AUDIO_LIST_SIZE;
+    private static String AUDIO_PLAYING = "";
     public BroadcastReceiver broadcastReceiver;
     private ImageView playButton;
     private ImageView pauseButton;
@@ -33,6 +34,10 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
     private ImageView previousButton;
     private ImageView rewindButton;
     private ImageView ffButton;
+    private ImageView actionShare;
+    private ImageView actionSave;
+    private ImageView actionComment;
+    private ImageView actionInfo;
 
     private TextView profileName;
     private TextView audioDetails;
@@ -60,8 +65,18 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
         previousButton = (ImageView) findViewById(R.id.buttonPrevious);
         rewindButton = (ImageView) findViewById(R.id.buttonReverse);
         ffButton = (ImageView) findViewById(R.id.buttonForward);
+        actionShare = (ImageView) findViewById(R.id.action_share);
+        actionSave = (ImageView) findViewById(R.id.action_save);
+        actionComment = (ImageView) findViewById(R.id.action_comment);
+        actionInfo = (ImageView) findViewById(R.id.action_info);
+
         audioDetails = (TextView) findViewById(R.id.storyNameTextView);
         profileName = (TextView) findViewById(R.id.profileNameTextView);
+
+        Log.i(TAG, "Audio Playing is " + AUDIO_PLAYING);
+        if (!AUDIO_PLAYING.equalsIgnoreCase("")) {
+            audioDetails.setText(AUDIO_PLAYING);
+        }
 
         pauseButton.setVisibility(View.INVISIBLE);
 
@@ -78,6 +93,10 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
         previousButton.setOnClickListener(this);
         rewindButton.setOnClickListener(this);
         ffButton.setOnClickListener(this);
+        actionShare.setOnClickListener(this);
+        actionSave.setOnClickListener(this);
+        actionComment.setOnClickListener(this);
+        actionInfo.setOnClickListener(this);
     }
 
     @Override
@@ -116,6 +135,7 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             playButton.setVisibility(View.INVISIBLE);
             pauseButton.setVisibility(View.VISIBLE);
             audioDetails.setText(itemList.get(position).getName());
+            AUDIO_PLAYING = audioDetails.getText().toString();
             profileName.setText("Folk Fables");
             Intent intent = new Intent(this, PlayMusic.class);
             intent.putExtra("AUDIO_URL", itemList.get(position).getAudioURL());
@@ -135,6 +155,7 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
                 position = 0;
             }
             audioDetails.setText(itemList.get(position).getName());
+            AUDIO_PLAYING = audioDetails.getText().toString();
             Intent intent = new Intent(this, PlayMusic.class);
             intent.putExtra("AUDIO_URL", itemList.get(position).getAudioURL());
             startService(intent);
@@ -149,6 +170,7 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
                 position = AUDIO_LIST_SIZE - 1;
             }
             audioDetails.setText(itemList.get(position).getName());
+            AUDIO_PLAYING = audioDetails.getText().toString();
             Intent intent = new Intent(this, PlayMusic.class);
             intent.putExtra("AUDIO_URL", itemList.get(position).getAudioURL());
             startService(intent);
@@ -156,6 +178,14 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             Toast.makeText(this, "Rewinding", Toast.LENGTH_SHORT).show();
         } else if (v == ffButton) {
             Toast.makeText(this, "Forwarding", Toast.LENGTH_SHORT).show();
+        } else if (v == actionShare) {
+            Toast.makeText(this, "Sharing story", Toast.LENGTH_SHORT).show();
+        } else if (v == actionSave) {
+            Toast.makeText(this, "Downloading story", Toast.LENGTH_SHORT).show();
+        } else if (v == actionComment) {
+            Toast.makeText(this, "Comment on story", Toast.LENGTH_SHORT).show();
+        } else if (v == actionInfo) {
+            Toast.makeText(this, "Showing Details", Toast.LENGTH_SHORT).show();
         }
     }
 }
