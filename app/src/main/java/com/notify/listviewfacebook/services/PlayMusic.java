@@ -6,6 +6,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -15,13 +16,22 @@ import java.io.IOException;
  */
 
 public class PlayMusic extends Service {
+    public final static String FOLK_FABLE_ACTIVITY = "com.notify.listviewfacebook.activities.StartActivity";
+    public final static String FOLK_FABLE_MESSAGE = "com.notify.listViewFacebook.startActivity.message";
     private static String TAG = PlayMusic.class.getSimpleName();
     private static MediaPlayer mediaPlayer;
+    LocalBroadcastManager localBroadcastManager;
 
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
         return null;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
     }
 
     @Override
@@ -50,9 +60,18 @@ public class PlayMusic extends Service {
                 Log.i(TAG, "On Completion called");
                 mediaPlayer.release();
                 mediaPlayer = null;
+                sendResult("Complete");
             }
         });
         return START_STICKY;
+    }
+
+    private void sendResult(String message) {
+        Intent intent = new Intent(FOLK_FABLE_ACTIVITY);
+        if (message != null) {
+            intent.putExtra(FOLK_FABLE_MESSAGE, message);
+            localBroadcastManager.sendBroadcast(intent);
+        }
     }
 
     private MediaPlayer getMediaPlayer() {
@@ -66,9 +85,11 @@ public class PlayMusic extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        mediaPlayer.stop();
-        mediaPlayer.release();
-        //Media player needs to be re initialized to null to avoid Illegal State Exception.
-        mediaPlayer = null;
+        if (mediaPlayer != null) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+            //Media player needs to be re initialized to null to avoid Illegal State Exception.
+            mediaPlayer = null;
+        }
     }
 }
