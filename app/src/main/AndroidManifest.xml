@@ -3,6 +3,7 @@
     package="com.notify.listviewfacebook">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 
     <application
         android:name=".app.AppController"
@@ -22,7 +23,9 @@
 
         <service
             android:name=".services.PlayMusic"
-            android:exported="false"></service>
+            android:exported="false" />
+
+        <activity android:name=".activities.StoryInfo"></activity>
     </application>
 
 </manifest>

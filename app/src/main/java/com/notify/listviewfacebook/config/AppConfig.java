@@ -33,5 +33,10 @@ public class AppConfig {
     public final static String NEW_STORY_PLAYING = "NEW_STORY_PLAYING";
     public final static String FIRST_TIME_STORY_PLAYING = "FIRST_TIME_STORY_PLAYING";
     public final static String STORY_PLAYING_SCENARIO = "STORY_PLAYING_SCENARIO";
-    public static String JSON_URL = "http://192.168.0.93:8080/stories-info.json";
+    public final static String JSON_URL = "http://192.168.0.93:8080/stories-info.json";
+    public final static String SHARE_MESSAGE = "Take some time out to listen to the nostalgic story of your Grandma at ";
+    public final static String URL_REQUEST_GET = "GET";
+    public final static String URL_REQUEST_POST = "POST";
+    public final static String CURRENT_AUDIO_SELECTED = "CURRENT_AUDIO_SELECTED";
+    public final static String UPLOADED_ON = "UPLOADED_ON";
 }

@@ -135,6 +135,7 @@ public class MainActivity extends AppCompatActivity {
                 item.setStatus(feedObj.getString("status"));
                 item.setProfilePic(feedObj.getString("profilePic"));
                 item.setTimeStamp(feedObj.getString("timeStamp"));
+                item.setDuration(feedObj.getString("duration"));
 
                 // URL might be null sometimes
                 String feedUrl = feedObj.isNull("url") ? null : feedObj

@@ -8,13 +8,13 @@ import java.io.Serializable;
 
 public class FeedItem implements Serializable {
     private int id;
-    private String name, status, image, profilePic, timeStamp, url, audioURL;
+    private String name, status, image, profilePic, timeStamp, duration, url, audioURL;
 
     public FeedItem() {
     }
 
     public FeedItem(int id, String name, String image, String status,
-                    String profilePic, String timeStamp, String url, String audioURL) {
+                    String profilePic, String timeStamp, String duration, String url, String audioURL) {
         super();
         this.id = id;
         this.name = name;
@@ -22,8 +22,18 @@ public class FeedItem implements Serializable {
         this.status = status;
         this.profilePic = profilePic;
         this.timeStamp = timeStamp;
+        this.duration = duration;
         this.url = url;
         this.audioURL = audioURL;
+
+    }
+
+    public String getDuration() {
+        return duration;
+    }
+
+    public void setDuration(String duration) {
+        this.duration = duration;
     }
 
     public String getAudioURL() {

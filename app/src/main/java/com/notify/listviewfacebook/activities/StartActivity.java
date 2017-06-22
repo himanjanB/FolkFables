@@ -1,18 +1,25 @@
 package com.notify.listviewfacebook.activities;
 
+import android.Manifest;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
+import android.text.format.DateUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,11 +30,19 @@ import com.notify.listviewfacebook.config.AppConfig;
 import com.notify.listviewfacebook.data.FeedItem;
 import com.notify.listviewfacebook.services.PlayMusic;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 
 public class StartActivity extends AppCompatActivity implements View.OnClickListener, SeekBar.OnSeekBarChangeListener {
     // Declare class member variables
 
+    public static final int MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE = 1;
     private static final String ACTION = AppConfig.ACTION;
     private static final String STORY_COMPLETED_PLAYING = AppConfig.STORY_COMPLETED_PLAYING;
     private static String TAG = StartActivity.class.getSimpleName();
@@ -37,11 +52,15 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
     private static String AUDIO_PLAYING = "";
     private static int totalDurationOfTheAudio;
     private static int currentDurationOfTheAudio;
+    private static int totalSizeOfTheDownloadedFile = 0;
+    private static int downloadedSize = 0;
     private static boolean continueAddingSecondsToAudio = false;
     private static SeekBar seekBar;
     private static TextView currentTimeTextView;
     private static TextView fullTimeTextView;
+    private static ArrayList<FeedItem> staticItemList;
     public BroadcastReceiver broadcastReceiver;
+    private ProgressBar downloadProgressBar;
     private ImageView playButton;
     private ImageView pauseButton;
     private ImageView nextButton;
@@ -167,6 +186,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
         currentTimeTextView = (TextView) findViewById(R.id.currentTimeTextView);
         fullTimeTextView = (TextView) findViewById(R.id.fullTimeTextView);
 
+        updateNecessaryDetails();
+
         // This TextView is set to show the name of the audio that is currently playing
         Log.i(TAG, "Audio Playing is " + AUDIO_PLAYING);
         if (!AUDIO_PLAYING.equalsIgnoreCase("")) {
@@ -177,6 +198,12 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
         itemList = (ArrayList<FeedItem>) intent.getSerializableExtra(AppConfig.AUDIO_LIST);
         position = intent.getIntExtra(AppConfig.POSITION, 0);
 
+        if (itemList != null) {
+            staticItemList = itemList;
+        } else {
+            itemList = staticItemList;
+        }
+
         AUDIO_LIST_SIZE = itemList.size();
         Log.i(TAG, "The length of the audio list is " + AUDIO_LIST_SIZE);
 
@@ -184,7 +211,10 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
 
         // In the beginning, the Pause button should be invisible.
         if (itemList.get(position).getId() == previousStoryID) {
-            playButton.setVisibility(View.INVISIBLE);
+            if (continueAddingSecondsToAudio)
+                playButton.setVisibility(View.INVISIBLE);
+            else
+                pauseButton.setVisibility(View.INVISIBLE);
         } else {
             pauseButton.setVisibility(View.INVISIBLE);
         }
@@ -312,6 +342,7 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             startService(intent);
 
             continueAddingSecondsToAudio = false;
+            updateNecessaryDetails();
 
         } else if (v == nextButton) {
 
@@ -384,13 +415,155 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             currentDurationOfTheAudio += AppConfig.FORWARD_BY_MILLISECONDS;
 
         } else if (v == actionShare) {
-            Toast.makeText(this, "Sharing story", Toast.LENGTH_SHORT).show();
+            Intent sharingIntent = new Intent();
+            sharingIntent.setAction(Intent.ACTION_SEND);
+            sharingIntent.setType("text/plain");
+            String message = AppConfig.SHARE_MESSAGE + itemList.get(position).getAudioURL();
+            sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "Folk Fables");
+            sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, message);
+            Log.i(TAG, "Starting the chooser");
+            startActivity(Intent.createChooser(sharingIntent, "Share using"));
         } else if (v == actionSave) {
+            new Thread(new Runnable() {
+                public void run() {
+                    downloadFile();
+                }
+            }).start();
             Toast.makeText(this, "Downloading story", Toast.LENGTH_SHORT).show();
         } else if (v == actionComment) {
             Toast.makeText(this, "Comment on story", Toast.LENGTH_SHORT).show();
         } else if (v == actionInfo) {
-            Toast.makeText(this, "Showing Details", Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, StoryInfo.class);
+            intent.putExtra(AppConfig.CURRENT_AUDIO_SELECTED, itemList.get(position).getName());
+            intent.putExtra(AppConfig.AUDIO_DURATION, itemList.get(position).getDuration());
+            intent.putExtra(AppConfig.UPLOADED_ON, convertTimeStamp(itemList.get(position).getTimeStamp()));
+            intent.putExtra(AppConfig.AUDIO_DETAILS, itemList.get(position).getStatus());
+            startActivity(intent);
+        }
+    }
+
+    private String convertTimeStamp(String timeStamp) {
+        // Converting timestamp into x ago format
+        CharSequence timeAgo = DateUtils.getRelativeTimeSpanString(
+                Long.parseLong(timeStamp),
+                System.currentTimeMillis(), DateUtils.SECOND_IN_MILLIS);
+        return timeAgo.toString();
+    }
+
+    private void updateNecessaryDetails() {
+        Log.i(TAG, "Audio paused. Updating necessary details");
+
+        if (totalDurationOfTheAudio != 0) {
+            // Displaying time full time of the audio and completed playing time
+            fullTimeTextView.setText(utilities.milliSecondsToTimer(totalDurationOfTheAudio));
+            currentTimeTextView.setText(utilities.milliSecondsToTimer(currentDurationOfTheAudio));
+
+            // Updating progress bar
+            int progress = utilities.getProgressPercentage(currentDurationOfTheAudio, totalDurationOfTheAudio);
+            seekBar.setProgress(progress);
+        }
+    }
+
+    private void downloadFile() {
+        try {
+            URL story_URL = new URL(itemList.get(position).getAudioURL());
+            HttpURLConnection connection = (HttpURLConnection) story_URL.openConnection();
+
+            connection.setRequestMethod(AppConfig.URL_REQUEST_GET);
+            connection.setDoOutput(true);
+
+            connection.connect();
+
+            // Request permission when it is not granted.
+            if (ContextCompat.checkSelfPermission(this,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    != PackageManager.PERMISSION_GRANTED) {
+                Log.d(TAG, "Permission: WRITE_EXTERNAL_STORAGE: NOT granted!");
+                // Should we show an explanation?
+                if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+
+                    // Show an explanation to the user *asynchronously* -- don't block
+                    // this thread waiting for the user's response! After the user
+                    // sees the explanation, try again to request the permission.
+                } else {
+                    // No explanation needed, we can request the permission.
+                    ActivityCompat.requestPermissions(this,
+                            new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                            MY_PERMISSIONS_REQUEST_WRITE_EXTERNAL_STORAGE);
+
+                    // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                    // app-defined int constant. The callback method gets the
+                    // result of the request.
+                }
+            }
+
+            // Set the path in the device where the audio file will be saved.
+            File root = Environment.getExternalStorageDirectory();
+            Log.i(TAG, "The root directory is " + root);
+
+            File audioSavedFolder = new File(Environment.getExternalStorageDirectory() + "/FolkFables");
+            boolean success = true;
+
+            if (!audioSavedFolder.exists()) {
+                success = audioSavedFolder.mkdirs();
+            }
+
+            if (success) {
+                Log.i(TAG, "Directory created");
+            } else {
+                Log.i(TAG, "Directory not created");
+            }
+
+            File file = new File(audioSavedFolder, itemList.get(position).getName() + ".mp3");
+            Log.i(TAG, "The name of the downloaded file is " + file.toString());
+
+            FileOutputStream fileOutputStream = new FileOutputStream(file);
+            InputStream inputStream = connection.getInputStream();
+
+            totalSizeOfTheDownloadedFile = connection.getContentLength();
+            Log.i(TAG, "Size of the downloaded file is " + totalSizeOfTheDownloadedFile);
+
+            /*runOnUiThread(new Runnable() {
+                public void run() {
+                    downloadProgressBar.setMax(totalSizeOfTheDownloadedFile);
+                }
+            });*/
+
+            // Create a buffer.
+            byte[] buffer = new byte[1024];
+            int bufferLength = 0;
+
+            while ((bufferLength = inputStream.read(buffer)) > 0) {
+                fileOutputStream.write(buffer, 0, bufferLength);
+                downloadedSize += bufferLength;
+                // update the progressbar //
+                /*runOnUiThread(new Runnable() {
+                    public void run() {
+                        downloadProgressBar.setProgress(downloadedSize);
+                        float per = ((float)downloadedSize/totalSizeOfTheDownloadedFile) * 100;
+                        //cur_val.setText("Downloaded " + downloadedSize + "KB / " + totalSizeOfTheDownloadedFile + "KB (" + (int)per + "%)" );
+                    }
+                });*/
+            }
+
+            // Close the output stream when download completes
+            fileOutputStream.close();
+
+            /*runOnUiThread(new Runnable() {
+                public void run() {
+                    // pb.dismiss(); // if you want close it..
+                }
+            });*/
+
+        } catch (final MalformedURLException e) {
+            Log.e(TAG, "Error : MalformedURLException " + e);
+            e.printStackTrace();
+        } catch (final IOException e) {
+            Log.e(TAG, "Error : IOException " + e);
+            e.printStackTrace();
+        } catch (final Exception e) {
+            Log.e(TAG, "Error : Please check your internet connection " + e);
         }
     }
 }

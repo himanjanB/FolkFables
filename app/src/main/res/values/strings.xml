@@ -9,4 +9,9 @@
     <string name="action_save">Save</string>
     <string name="action_comment">Comment</string>
     <string name="action_info">Info</string>
+    <string name="title_activity_story_info">StoryInfo</string>
+    <string name="uploaded_on">Uploaded On</string>
+    <string name="total_duration_info">Total Duration</string>
+
+    <string name="test_string">Some test string here..</string>
 </resources>

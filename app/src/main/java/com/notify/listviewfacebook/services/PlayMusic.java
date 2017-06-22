@@ -27,6 +27,7 @@ public class PlayMusic extends Service {
 
     private static String TAG = PlayMusic.class.getSimpleName();
     private static MediaPlayer mediaPlayer;
+    private static String CURRENT_PLAYING_AUDIO_URL;
     LocalBroadcastManager localBroadcastManager;
 
     @Nullable
@@ -65,8 +66,24 @@ public class PlayMusic extends Service {
 
                 if (mediaPlayer != null) {
                     if (!mediaPlayer.isPlaying()) {
-                        mediaPlayer.start();
-                        sendDetailsForTheAudio(mediaPlayer, AppConfig.PAUSED_NOW_PLAYED);
+                        if (URL.equalsIgnoreCase(CURRENT_PLAYING_AUDIO_URL)) {
+                            mediaPlayer.start();
+                            sendDetailsForTheAudio(mediaPlayer, AppConfig.PAUSED_NOW_PLAYED);
+                        } else {
+                            mediaPlayer.reset();
+                            mediaPlayer = getMediaPlayer();
+                            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            try {
+                                mediaPlayer.setDataSource(URL);
+                                CURRENT_PLAYING_AUDIO_URL = URL;
+                                mediaPlayer.prepare();
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
+                            mediaPlayer.start();
+
+                            sendDetailsForTheAudio(mediaPlayer, AppConfig.NEW_STORY_PLAYING);
+                        }
                     } else {
                         if (mediaPlayer.isPlaying()) {
                             Log.i(TAG, "Music is already playing");
@@ -76,6 +93,7 @@ public class PlayMusic extends Service {
                         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                         try {
                             mediaPlayer.setDataSource(URL);
+                            CURRENT_PLAYING_AUDIO_URL = URL;
                             mediaPlayer.prepare();
                         } catch (IOException e) {
                             e.printStackTrace();
@@ -89,6 +107,7 @@ public class PlayMusic extends Service {
                     mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                     try {
                         mediaPlayer.setDataSource(URL);
+                        CURRENT_PLAYING_AUDIO_URL = URL;
                         mediaPlayer.prepare();
                     } catch (IOException e) {
                         e.printStackTrace();
