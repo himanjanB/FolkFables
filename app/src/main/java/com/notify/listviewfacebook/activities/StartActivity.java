@@ -24,8 +24,11 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.toolbox.ImageLoader;
+import com.notify.listviewfacebook.FeedImageView;
 import com.notify.listviewfacebook.R;
 import com.notify.listviewfacebook.Utils.Utilities;
+import com.notify.listviewfacebook.app.AppController;
 import com.notify.listviewfacebook.config.AppConfig;
 import com.notify.listviewfacebook.data.FeedItem;
 import com.notify.listviewfacebook.services.PlayMusic;
@@ -60,6 +63,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
     private static TextView fullTimeTextView;
     private static ArrayList<FeedItem> staticItemList;
     public BroadcastReceiver broadcastReceiver;
+    FeedImageView feedImageView;
+    ImageLoader imageLoader = AppController.getInstance().getImageLoader();
     private ProgressBar downloadProgressBar;
     private ImageView playButton;
     private ImageView pauseButton;
@@ -76,7 +81,6 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
     private TextView currentAudioPlaying;
     private ArrayList<FeedItem> itemList;
     private Utilities utilities;
-
     /**
      * Background Runnable thread for updating the seek bar in the seek bar
      */
@@ -140,6 +144,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
                         continueAddingSecondsToAudio = false;
                         pauseButton.setVisibility(View.INVISIBLE);
                         playButton.setVisibility(View.VISIBLE);
+
+                        playNextSong();
                     }
                 } else if (action.equalsIgnoreCase(AppConfig.STORY_START)) {
                     /**
@@ -186,6 +192,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
         currentTimeTextView = (TextView) findViewById(R.id.currentTimeTextView);
         fullTimeTextView = (TextView) findViewById(R.id.fullTimeTextView);
 
+        feedImageView = (FeedImageView) findViewById(R.id.storyImage);
+
         updateNecessaryDetails();
 
         // This TextView is set to show the name of the audio that is currently playing
@@ -203,6 +211,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
         } else {
             itemList = staticItemList;
         }
+
+        setProfileBackground();
 
         AUDIO_LIST_SIZE = itemList.size();
         Log.i(TAG, "The length of the audio list is " + AUDIO_LIST_SIZE);
@@ -230,6 +240,54 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
         actionSave.setOnClickListener(this);
         actionComment.setOnClickListener(this);
         actionInfo.setOnClickListener(this);
+        seekBar.setOnSeekBarChangeListener(this);
+    }
+
+    private void playNextSong() {
+        position++;
+        if (position > AUDIO_LIST_SIZE - 1) {
+            position = 0;
+        }
+
+        previousStoryID = itemList.get(position).getId();
+        playButton.setVisibility(View.INVISIBLE);
+        pauseButton.setVisibility(View.VISIBLE);
+
+        audioDetails.setText(itemList.get(position).getName());
+        AUDIO_PLAYING = audioDetails.getText().toString();
+        currentAudioPlaying.setText(AUDIO_PLAYING);
+
+        Intent intent = new Intent(this, PlayMusic.class);
+        intent.putExtra(AppConfig.ACTION, AppConfig.AUDIO_PLAY);
+        intent.putExtra(AppConfig.AUDIO_URL, itemList.get(position).getAudioURL());
+        startService(intent);
+
+        mHandler.removeCallbacks(mUpdateTimeTask);
+        mHandler.removeCallbacks(mUpdateCurrentDuration);
+        continueAddingSecondsToAudio = true;
+
+        setProfileBackground();
+    }
+
+    private void setProfileBackground() {
+        FeedItem item = itemList.get(position);
+        // Feed image
+        if (item.getImage() != null) {
+            feedImageView.setImageUrl(item.getImage(), imageLoader);
+            feedImageView.setVisibility(View.VISIBLE);
+            feedImageView
+                    .setResponseObserver(new FeedImageView.ResponseObserver() {
+                        @Override
+                        public void onError() {
+                        }
+
+                        @Override
+                        public void onSuccess() {
+                        }
+                    });
+        } else {
+            feedImageView.setVisibility(View.GONE);
+        }
     }
 
     private void updateCurrentDuration() {
@@ -247,6 +305,22 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
      * */
     @Override
     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromTouch) {
+        Log.i(TAG, "Seek bar changed by user");
+        mHandler.removeCallbacks(mUpdateTimeTask);
+        int totalDuration = totalDurationOfTheAudio;
+        int currentPosition = utilities.progressToTimer(seekBar.getProgress(), totalDuration);
+
+        Log.i(TAG, "Total Duration is " + totalDuration);
+        Log.i(TAG, "Updated position is " + currentPosition);
+
+        // Forward or Rewind to certain seconds
+        Intent intent = new Intent(this, PlayMusic.class);
+        intent.putExtra(AppConfig.ACTION, AppConfig.USER_SEEK);
+        intent.putExtra(AppConfig.SEEK_TO, currentPosition);
+        startService(intent);
+
+        // Update timer progress
+        updateProgressBar();
 
     }
 
@@ -267,17 +341,6 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
     public void onStopTrackingTouch(SeekBar seekBar) {
         // TODO This is not done yet.
         mHandler.removeCallbacks(mUpdateTimeTask);
-        int totalDuration = totalDurationOfTheAudio;
-        int currentPosition = utilities.progressToTimer(seekBar.getProgress(), totalDuration);
-
-        // Forward or Rewind to certain seconds
-        Intent intent = new Intent(this, PlayMusic.class);
-        intent.putExtra(AppConfig.ACTION, AppConfig.USER_SEEK);
-        intent.putExtra(AppConfig.SEEK_TO, currentPosition);
-        startService(intent);
-
-        // Update timer progress
-        updateProgressBar();
     }
 
     @Override
@@ -332,6 +395,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             mHandler.removeCallbacks(mUpdateCurrentDuration);
             continueAddingSecondsToAudio = true;
 
+            setProfileBackground();
+
         } else if (v == pauseButton) {
 
             pauseButton.setVisibility(View.INVISIBLE);
@@ -371,6 +436,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             mHandler.removeCallbacks(mUpdateCurrentDuration);
             currentDurationOfTheAudio = 0;
 
+            setProfileBackground();
+
         } else if (v == previousButton) {
 
             playButton.setVisibility(View.INVISIBLE);
@@ -397,6 +464,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             mHandler.removeCallbacks(mUpdateTimeTask);
             mHandler.removeCallbacks(mUpdateCurrentDuration);
             currentDurationOfTheAudio = 0;
+
+            setProfileBackground();
 
         } else if (v == rewindButton) {
 
@@ -431,7 +500,8 @@ public class StartActivity extends AppCompatActivity implements View.OnClickList
             }).start();
             Toast.makeText(this, "Downloading story", Toast.LENGTH_SHORT).show();
         } else if (v == actionComment) {
-            Toast.makeText(this, "Comment on story", Toast.LENGTH_SHORT).show();
+            actionComment.setImageResource(R.drawable.heart);
+            Toast.makeText(this, "Added to favourites", Toast.LENGTH_SHORT).show();
         } else if (v == actionInfo) {
             Intent intent = new Intent(this, StoryInfo.class);
             intent.putExtra(AppConfig.CURRENT_AUDIO_SELECTED, itemList.get(position).getName());

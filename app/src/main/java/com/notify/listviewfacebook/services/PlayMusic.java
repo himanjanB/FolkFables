@@ -120,7 +120,7 @@ public class PlayMusic extends Service {
                 if (mediaPlayer != null)
                     mediaPlayer.pause();
             } else if (action.equalsIgnoreCase(AppConfig.AUDIO_FORWARD)) {
-                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                if (mediaPlayer != null) {
                     int forwardByMilliSeconds = intent.getIntExtra(AppConfig.FORWARD_BY, 3000);
                     int currentDuration = mediaPlayer.getCurrentPosition();
 
@@ -131,7 +131,7 @@ public class PlayMusic extends Service {
                     Log.i(TAG, "Media player is not in playing state");
                 }
             } else if (action.equalsIgnoreCase(AppConfig.AUDIO_REWIND)) {
-                if (mediaPlayer != null && mediaPlayer.isPlaying()) {
+                if (mediaPlayer != null) {
                     int rewindByMilliSeconds = intent.getIntExtra(AppConfig.REWIND_BY, 3000);
                     int currentDuration = mediaPlayer.getCurrentPosition();
 

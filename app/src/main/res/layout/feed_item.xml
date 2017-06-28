@@ -78,7 +78,7 @@
         <com.notify.listviewfacebook.FeedImageView
             android:id="@+id/feedImage"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:background="@color/colorPrimary"
             android:scaleType="fitXY"
             android:visibility="visible" />
